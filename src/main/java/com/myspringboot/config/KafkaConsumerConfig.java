@@ -1,5 +1,6 @@
 package com.myspringboot.config;
 
+import com.myspringboot.pojo.Message;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.beans.factory.annotation.Value;
@@ -9,6 +10,7 @@ import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
+import org.springframework.kafka.support.serializer.JsonDeserializer;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -33,7 +35,7 @@ public class KafkaConsumerConfig {
     private String autoOffsetReset;
 
     @Bean
-    public ConsumerFactory<String, String> consumerFactory() {
+    public ConsumerFactory<String, Message> consumerFactory() {
         Map<String, Object> props = new HashMap<>();
         props.put(
                 ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,
@@ -44,20 +46,30 @@ public class KafkaConsumerConfig {
         props.put(
                 ConsumerConfig.AUTO_OFFSET_RESET_CONFIG,
                 autoOffsetReset);
-        props.put(
-                ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
-                StringDeserializer.class);
-        props.put(
-                ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
-                StringDeserializer.class);
-        return new DefaultKafkaConsumerFactory<>(props);
+//        props.put(
+//                ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
+//                StringDeserializer.class);
+//        props.put(
+//                ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
+//                StringDeserializer.class);
+        return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(), new JsonDeserializer<>(Message.class));
     }
 
+    /**
+     * 我们可以为消息监听添加过滤器来过滤一些特定的信息。
+     * 我们在消费者配置类KafkaConsumerConfig的kafkaListenerContainerFactory方法里配置过滤规则：
+     *
+     * @return
+     */
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, String> kafkaListenerContainerFactory() {
-        ConcurrentKafkaListenerContainerFactory<String, String> factory
+    public ConcurrentKafkaListenerContainerFactory<String, Message> kafkaListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, Message> factory
                 = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());
+        // ------- 过滤配置 --------
+        factory.setRecordFilterStrategy(
+                r -> r.value().getMessage().contains("fuck")
+        );
         return factory;
     }
 }

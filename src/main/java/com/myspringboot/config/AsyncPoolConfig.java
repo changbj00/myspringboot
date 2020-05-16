@@ -6,6 +6,9 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import java.util.concurrent.ThreadPoolExecutor;
 
+/**
+ * 异步请求
+ */
 @Configuration
 public class AsyncPoolConfig {
     @Bean

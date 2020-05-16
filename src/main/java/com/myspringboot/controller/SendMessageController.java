@@ -1,5 +1,6 @@
 package com.myspringboot.controller;
 
+import com.myspringboot.pojo.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,22 +20,23 @@ public class SendMessageController {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
     @Autowired
-    private KafkaTemplate<String, String> kafkaTemplate;
+    private KafkaTemplate<String, Message> kafkaTemplate;
 
     @GetMapping("send/{message}")
     public void send(@PathVariable String message) {
-        ListenableFuture<SendResult<String, String>> future = this.kafkaTemplate.send("test", message);
-        future.addCallback(new ListenableFutureCallback<SendResult<String, String>>() {
+        ListenableFuture<SendResult<String, Message>> future = this.kafkaTemplate.send("test", new Message("midir",message));
+        future.addCallback(new ListenableFutureCallback<SendResult<String, Message>>() {
+            @Override
+            public void onSuccess(SendResult<String, Message> result) {
+
+                logger.info("成功发送消息：{}，offset=[{}]", message, result.getRecordMetadata().offset());
+            }
+
             @Override
             public void onFailure(Throwable ex) {
                 logger.error("消息：{} 发送失败，原因：{}", message, ex.getMessage());
             }
 
-            @Override
-            public void onSuccess(SendResult<String, String> result) {
-                logger.info("成功发送消息：{}，offset=[{}]", message, result.getRecordMetadata().offset());
-
-            }
         });
     }
 }
