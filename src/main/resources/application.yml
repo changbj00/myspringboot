@@ -46,6 +46,11 @@ spring:
     consumer:
       group-id: test-consumer
       auto-offset-reset: latest
+  data:
+    mongodb:
+      host: localhost
+      port: 27017
+      database: testdb
 mybatis:
   mapper-locations: classpath:mybatis/mapper/*.xml
   config-location: classpath:mybatis/mybatis-config.xml
