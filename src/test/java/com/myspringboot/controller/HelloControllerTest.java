@@ -20,12 +20,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebAppConfiguration
 public class HelloControllerTest {
     private MockMvc mvc;
+
     @Before
-    public void setUp(){
-        mvc=MockMvcBuilders.standaloneSetup(new HelloController()).build();
+    public void setUp() {
+        mvc = MockMvcBuilders.standaloneSetup(new HelloController()).build();
     }
+
     @Test
     public void getHello() throws Exception {
-        mvc.perform(MockMvcRequestBuilders.get("/hello").accept(MediaType.APPLICATION_JSON)).andExpect(status().isOk()).andExpect(content().string(equalTo("hello world")));
+        mvc.perform(MockMvcRequestBuilders.get("/hello")
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().string(equalTo("hello world")));
     }
 }
